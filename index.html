@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0b0c">
+<title>Sahel AKD Office</title>
+<style>
+:root{--bg:#0b0b0c;--card:#151517;--card2:#1d1d20;--line:#2b2b30;--gold:#d4a937;--gold2:#f1d27a;--txt:#f4efe3;--mut:#9a9486;--ok:#4cc38a;--bad:#e5645c}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px}
+body{min-height:100vh;padding-bottom:calc(90px + env(safe-area-inset-bottom))}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:640px;margin:0 auto;padding:0 16px}
+header{position:sticky;top:0;z-index:5;background:rgba(11,11,12,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:36px;height:36px;border-radius:50%;border:2px solid var(--gold);display:grid;place-items:center;font-weight:700;font-size:20px;color:var(--gold2);font-family:Georgia,serif}
+.brand b{display:block;letter-spacing:.12em;color:var(--gold2);font-size:15px}
+.brand small{display:block;color:var(--mut);font-size:10px;letter-spacing:.2em}
+h2{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:22px 0 10px}
+.btn{border:0;border-radius:12px;padding:12px 16px;font-weight:600;cursor:pointer;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1a1405}
+.btn:disabled{opacity:.6}
+.ghost{background:transparent;border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:8px 12px;cursor:pointer;font-size:14px}
+.ghost.danger{color:var(--bad);border-color:#4a2623}
+.ghost.gold{color:var(--gold2);border-color:#5a4a1d}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.stat b{display:block;font-size:26px;color:var(--gold2)}
+.stat span{color:var(--mut);font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
+.card p{margin:6px 0;color:#d9d3c4;font-size:15px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.nom{font-weight:600;margin-top:6px}
+.nom small,.meta{color:var(--mut);font-size:13px;font-weight:400}
+.route{color:var(--gold2)!important}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.badge{font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
+.s-enregistre{color:#bbb;border-color:#444}
+.s-pris_en_charge{color:#e0b84a;border-color:#6b5520}
+.s-en_transit{color:var(--gold2);border-color:#7a6224}
+.s-en_livraison{color:#ff9a4d;border-color:#7a3f18}
+.s-livre{color:var(--ok);border-color:#1f5a40}
+.s-annule{color:var(--bad);border-color:#5a2723}
+input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--gold)}
+textarea{min-height:80px;resize:vertical}
+label{display:block;font-size:13px;color:var(--mut);margin:12px 0 6px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none}
+.chip{flex:none;border:1px solid var(--line);background:transparent;color:var(--txt);padding:7px 12px;border-radius:999px;font-size:14px;cursor:pointer}
+.chip.on{background:var(--gold);color:#1a1405;border-color:var(--gold)}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:6;background:rgba(15,15,16,.96);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav .wrap{display:flex;justify-content:space-around;height:64px;align-items:center}
+nav button{background:none;border:0;color:var(--mut);font-size:13px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 14px}
+nav button.on{color:var(--gold2)}
+nav svg{width:22px;height:22px}
+.fab{position:fixed;right:18px;bottom:calc(82px + env(safe-area-inset-bottom));z-index:7;width:56px;height:56px;border-radius:50%;border:0;font-size:30px;line-height:1;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1a1405;box-shadow:0 6px 20px rgba(0,0,0,.5);cursor:pointer}
+.backdrop{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:640px;max-height:92vh;overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:20px 20px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom))}
+.sheet h3{margin:0 0 4px;color:var(--gold2)}
+.sheet .btns{display:flex;gap:10px;margin-top:18px}
+.sheet .btns .btn{flex:1}
+.auth{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
+.auth .box{width:100%;max-width:380px;text-align:center}
+.auth .logo{width:84px;height:84px;font-size:46px;margin:0 auto 14px}
+.auth h1{margin:0;letter-spacing:.16em;color:var(--gold2);font-size:26px}
+.auth p{color:var(--mut);margin:6px 0 22px}
+.auth form{text-align:left}
+.auth .btn{width:100%;margin-top:18px}
+.link{background:none;border:0;color:var(--gold);margin-top:16px;cursor:pointer;text-decoration:underline}
+.note{color:var(--mut);font-size:13px;margin-top:10px}
+.empty{color:var(--mut);text-align:center;padding:26px 0}
+.tl{list-style:none;margin:14px 0 0;padding:0 0 0 16px;border-left:2px solid #4a3d16}
+.tl li{position:relative;padding:0 0 16px 14px}
+.tl li:before{content:"";position:absolute;left:-23px;top:3px;width:12px;height:12px;border-radius:50%;background:var(--gold)}
+.tl small{display:block;color:var(--mut)}
+#toast{position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:50;background:#222;border:1px solid var(--gold);color:var(--txt);padding:10px 16px;border-radius:12px;max-width:90%;display:none;font-size:14px}
+#toast.err{border-color:var(--bad)}
+.codebox{display:inline-block;background:var(--card2);border:1px dashed #5a4a1d;border-radius:8px;padding:2px 10px;letter-spacing:.2em;font-weight:700;color:var(--gold2)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modal"></div>
+<div id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SB_URL = 'https://cetbspgxsqbaousqrara.supabase.co';
+const SB_KEY = 'sb_publishable_jVfbOWScVx_C4fXI1D_srA_CONVraPa';
+// Adresse de l'appli client (à renseigner une fois publiée sur GitHub), utilisée dans le message WhatsApp
+const CLIENT_URL = '';
+
+const sb = supabase.createClient(SB_URL, SB_KEY);
+const STATUTS = [
+  ['enregistre', 'Enregistré'], ['pris_en_charge', 'Pris en charge'], ['en_transit', 'En transit'],
+  ['en_livraison', 'En livraison'], ['livre', 'Livré'], ['annule', 'Annulé']
+];
+const LABEL = Object.fromEntries(STATUTS);
+const S = { user: null, admin: null, view: 'accueil', clients: [], livraisons: [], filtre: 'tous', q: '', authMode: 'login' };
+
+const $ = s => document.querySelector(s);
+const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmtDate = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('fr-FR') : '';
+const fmtDateTime = d => new Date(d).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
+const fmtPrix = (p, d) => Number(p).toLocaleString('fr-FR') + ' ' + (d || 'FCFA');
+const today = () => new Date().toLocaleDateString('en-CA');
+
+let toastTimer;
+function toast(msg, err) {
+  const t = $('#toast');
+  t.textContent = msg; t.className = err ? 'err' : ''; t.style.display = 'block';
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.style.display = 'none'; }, 3200);
+}
+
+function normTel(s) {
+  let t = String(s || '').replace(/[\s\-.()]/g, '');
+  if (t.startsWith('00')) t = '+' + t.slice(2);
+  if (!t.startsWith('+') && /^\d{8}$/.test(t)) t = '+227' + t;
+  return t;
+}
+function genCode() {
+  const n = crypto.getRandomValues(new Uint32Array(1))[0] % 1000000;
+  return String(n).padStart(6, '0');
+}
+const clientById = id => S.clients.find(c => c.id === id);
+
+/* ---------- Données ---------- */
+async function setUser(u) {
+  S.user = u; S.admin = null;
+  if (u) {
+    const { data } = await sb.from('sahel_admins').select('user_id').eq('user_id', u.id).maybeSingle();
+    S.admin = !!data;
+    if (S.admin) await loadAll();
+  }
+  render();
+}
+async function loadAll() {
+  const [c, l] = await Promise.all([
+    sb.from('sahel_clients').select('*').order('created_at', { ascending: false }),
+    sb.from('sahel_livraisons').select('*').order('created_at', { ascending: false })
+  ]);
+  if (c.error || l.error) { toast((c.error || l.error).message, true); return; }
+  S.clients = c.data; S.livraisons = l.data;
+}
+
+/* ---------- Vues ---------- */
+function authView() {
+  const signup = S.authMode === 'signup';
+  return `<div class="auth"><div class="box">
+    <div class="logo">S</div><h1>SAHEL AKD</h1><p>Office logistique</p>
+    <form data-form="auth">
+      <label>E-mail</label><input name="email" type="email" autocomplete="email" required>
+      <label>Mot de passe</label><input name="password" type="password" minlength="8" autocomplete="${signup ? 'new-password' : 'current-password'}" required>
+      <button class="btn" type="submit">${signup ? 'Créer le compte' : 'Se connecter'}</button>
+    </form>
+    <button class="link" data-a="authmode">${signup ? 'J’ai déjà un compte' : 'Première visite ? Créer le compte admin'}</button>
+    ${signup ? '<p class="note">Seul le compte autorisé par le développeur aura accès à l’office.</p>' : ''}
+  </div></div>`;
+}
+function denyView() {
+  return `<div class="auth"><div class="box">
+    <div class="logo">S</div><h1>SAHEL AKD</h1>
+    <p>Ce compte (${esc(S.user.email)}) n’est pas encore autorisé comme administrateur.</p>
+    <button class="btn" data-a="recheck">Revérifier</button>
+    <button class="link" data-a="logout">Se déconnecter</button>
+  </div></div>`;
+}
+function shell(inner) {
+  const nav = (v, ico, txt) => `<button data-a="nav" data-v="${v}" class="${S.view === v ? 'on' : ''}">${ico}<span>${txt}</span></button>`;
+  const i = {
+    home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>',
+    users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M1 21c0-4 3.6-7 8-7s8 3 8 7M17 4a4 4 0 0 1 0 8M23 21c0-3-2-5.500-5-6.500"/></svg>',
+    box: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8l-9-5-9 5v8l9 5 9-5zM3 8l9 5 9-5M12 13v8"/></svg>'
+  };
+  return `<header><div class="wrap"><div class="brand"><div class="logo">S</div><div><b>SAHEL AKD</b><small>OFFICE LOGISTIQUE</small></div></div>
+    <button class="ghost" data-a="logout">Déconnexion</button></div></header>
+    <main class="wrap">${inner}</main>
+    <button class="fab" data-a="${S.view === 'clients' ? 'add-client' : 'add-liv'}" aria-label="Ajouter">+</button>
+    <nav><div class="wrap">${nav('accueil', i.home, 'Accueil')}${nav('clients', i.users, 'Clients')}${nav('livraisons', i.box, 'Livraisons')}</div></nav>`;
+}
+function accueil() {
+  const L = S.livraisons;
+  const enCours = L.filter(l => !['livre', 'annule'].includes(l.statut)).length;
+  const livrees = L.filter(l => l.statut === 'livre').length;
+  const prevues = L.filter(l => l.date_prevue === today() && !['livre', 'annule'].includes(l.statut));
+  const parStatut = STATUTS.map(([k, v]) => `<div class="stat"><b>${L.filter(l => l.statut === k).length}</b><span>${v}</span></div>`).join('');
+  return `<h2>Vue d’ensemble</h2>
+    <div class="grid">
+      <div class="stat"><b>${enCours}</b><span>En cours</span></div>
+      <div class="stat"><b>${livrees}</b><span>Livrées</span></div>
+      <div class="stat"><b>${S.clients.length}</b><span>Clients</span></div>
+      <div class="stat"><b>${L.length}</b><span>Livraisons au total</span></div>
+    </div>
+    <h2>Par statut</h2><div class="grid">${parStatut}</div>
+    <h2>Prévues aujourd’hui</h2>${prevues.length ? prevues.map(livCard).join('') : '<div class="empty">Aucune livraison prévue aujourd’hui.</div>'}
+    <h2>Dernières livraisons</h2>${L.length ? L.slice(0, 5).map(livCard).join('') : '<div class="empty">Aucune livraison pour le moment.</div>'}`;
+}
+function clientCard(c) {
+  const bloque = c.bloque_jusqu_a && new Date(c.bloque_jusqu_a) > new Date();
+  const nb = S.livraisons.filter(l => l.client_id === c.id).length;
+  return `<article class="card">
+    <div class="row"><b>${esc(c.nom)}</b>${bloque ? '<span class="badge s-annule">Bloqué</span>' : ''}</div>
+    <p>${esc(c.telephone)} · <span class="meta">${nb} livraison${nb > 1 ? 's' : ''}</span></p>
+    <p>Code : <span class="codebox">${esc(c.code)}</span></p>
+    <div class="actions">
+      <button class="ghost gold" data-a="copy" data-id="${c.id}">Copier</button>
+      <button class="ghost gold" data-a="wa" data-id="${c.id}">WhatsApp</button>
+      <button class="ghost" data-a="edit-client" data-id="${c.id}">Modifier</button>
+      <button class="ghost" data-a="regen" data-id="${c.id}">Nouveau code</button>
+      ${bloque ? `<button class="ghost gold" data-a="unlock" data-id="${c.id}">Débloquer</button>` : ''}
+      <button class="ghost danger" data-a="del-client" data-id="${c.id}">Supprimer</button>
+    </div></article>`;
+}
+function livCard(l) {
+  const c = clientById(l.client_id);
+  const opts = STATUTS.map(([k, v]) => `<option value="${k}" ${k === l.statut ? 'selected' : ''}>${v}</option>`).join('');
+  return `<article class="card">
+    <div class="row"><b>#${esc(l.reference)}</b><span class="badge s-${esc(l.statut)}">${esc(LABEL[l.statut] || l.statut)}</span></div>
+    <div class="nom">${esc(c ? c.nom : 'Client supprimé')} <small>${esc(c ? c.telephone : '')}</small></div>
+    <p>${esc(l.description)}</p>
+    <p class="route">${esc(l.depart)} → ${esc(l.destination)}</p>
+    <div class="meta">${l.date_prevue ? 'Prévu le ' + fmtDate(l.date_prevue) : 'Date non précisée'}${l.prix != null ? ' · ' + fmtPrix(l.prix, l.devise) : ''}</div>
+    <div class="actions">
+      <select data-statut="${l.id}" style="width:auto;padding:8px 10px">${opts}</select>
+      <button class="ghost gold" data-a="hist" data-id="${l.id}">Historique</button>
+      <button class="ghost" data-a="edit-liv" data-id="${l.id}">Modifier</button>
+      <button class="ghost danger" data-a="del-liv" data-id="${l.id}">Supprimer</button>
+    </div></article>`;
+}
+function listClients() {
+  const q = S.q.toLowerCase();
+  const r = S.clients.filter(c => !q || c.nom.toLowerCase().includes(q) || c.telephone.includes(q));
+  return r.length ? r.map(clientCard).join('') : '<div class="empty">Aucun client.</div>';
+}
+function listLiv() {
+  const q = S.q.toLowerCase();
+  const r = S.livraisons.filter(l => {
+    if (S.filtre !== 'tous' && l.statut !== S.filtre) return false;
+    if (!q) return true;
+    const c = clientById(l.client_id);
+    return [l.reference, l.description, l.depart, l.destination, c && c.nom, c && c.telephone].join(' ').toLowerCase().includes(q);
+  });
+  return r.length ? r.map(livCard).join('') : '<div class="empty">Aucune livraison.</div>';
+}
+function clientsView() {
+  return `<h2>Clients</h2><input id="q" placeholder="Rechercher un nom ou un numéro" value="${esc(S.q)}" style="margin-bottom:12px">
+    <div id="liste">${listClients()}</div>`;
+}
+function livraisonsView() {
+  const chips = [['tous', 'Toutes'], ...STATUTS].map(([k, v]) => `<button class="chip ${S.filtre === k ? 'on' : ''}" data-a="filtre" data-v="${k}">${v}</button>`).join('');
+  return `<h2>Livraisons</h2><input id="q" placeholder="Rechercher (référence, client, lieu…)" value="${esc(S.q)}">
+    <div class="chips" style="margin-top:10px">${chips}</div><div id="liste">${listLiv()}</div>`;
+}
+function render() {
+  const app = $('#app');
+  if (!S.user) { app.innerHTML = authView(); return; }
+  if (!S.admin) { app.innerHTML = denyView(); return; }
+  app.innerHTML = shell(S.view === 'accueil' ? accueil() : S.view === 'clients' ? clientsView() : livraisonsView());
+}
+
+/* ---------- Fenêtres ---------- */
+function openModal(html) { $('#modal').innerHTML = `<div class="backdrop"><div class="sheet">${html}</div></div>`; }
+function closeModal() { $('#modal').innerHTML = ''; }
+
+function clientForm(c) {
+  openModal(`<h3>${c ? 'Modifier le client' : 'Nouveau client'}</h3>
+    <form data-form="client" data-id="${c ? c.id : ''}">
+      <label>Nom</label><input name="nom" required value="${esc(c ? c.nom : '')}">
+      <label>Téléphone</label><input name="telephone" type="tel" inputmode="tel" required placeholder="ex : 90 12 34 56" value="${esc(c ? c.telephone : '')}">
+      <label>Code de connexion (fixe)</label><input name="code" required minlength="4" value="${esc(c ? c.code : genCode())}">
+      <p class="note">Sans indicatif, un numéro à 8 chiffres est enregistré avec +227 (Niger).</p>
+      <div class="btns"><button type="button" class="ghost" data-a="close">Annuler</button><button class="btn" type="submit">Enregistrer</button></div>
+    </form>`);
+}
+function livForm(l) {
+  if (!S.clients.length) { toast('Crée d’abord un client.', true); return; }
+  const opts = S.clients.map(c => `<option value="${c.id}" ${l && l.client_id === c.id ? 'selected' : ''}>${esc(c.nom)} (${esc(c.telephone)})</option>`).join('');
+  openModal(`<h3>${l ? 'Modifier la livraison' : 'Nouvelle livraison'}</h3>
+    <form data-form="liv" data-id="${l ? l.id : ''}">
+      <label>Client</label><select name="client_id" required>${opts}</select>
+      <label>Description du colis</label><textarea name="description" required>${esc(l ? l.description : '')}</textarea>
+      <label>Départ</label><input name="depart" required value="${esc(l ? l.depart : '')}">
+      <label>Destination</label><input name="destination" required value="${esc(l ? l.destination : '')}">
+      <label>Date prévue</label><input name="date_prevue" type="date" value="${esc(l && l.date_prevue ? l.date_prevue : '')}">
+      <label>Prix (FCFA)</label><input name="prix" type="number" min="0" step="1" inputmode="numeric" value="${l && l.prix != null ? esc(l.prix) : ''}">
+      <div class="btns"><button type="button" class="ghost" data-a="close">Annuler</button><button class="btn" type="submit">Enregistrer</button></div>
+    </form>`);
+}
+async function showHist(id) {
+  const l = S.livraisons.find(x => x.id === id);
+  openModal(`<h3>Historique #${esc(l ? l.reference : '')}</h3><div class="empty">Chargement…</div>
+    <div class="btns"><button class="ghost" data-a="close" style="flex:1">Fermer</button></div>`);
+  const { data, error } = await sb.from('sahel_historique').select('*').eq('livraison_id', id).order('created_at', { ascending: true });
+  if (error) { toast(error.message, true); closeModal(); return; }
+  const items = data.map(h => `<li><b>${esc(LABEL[h.statut] || h.statut)}</b><small>${fmtDateTime(h.created_at)}</small></li>`).join('');
+  openModal(`<h3>Historique #${esc(l ? l.reference : '')}</h3>
+    ${items ? `<ul class="tl">${items}</ul>` : '<div class="empty">Aucun historique.</div>'}
+    <div class="btns"><button class="ghost" data-a="close" style="flex:1">Fermer</button></div>`);
+}
+
+/* ---------- Actions ---------- */
+async function doAuth(f) {
+  const btn = f.querySelector('button[type=submit]');
+  const email = f.email.value.trim(), password = f.password.value;
+  btn.disabled = true;
+  try {
+    if (S.authMode === 'signup') {
+      const { data, error } = await sb.auth.signUp({ email, password });
+      if (error) return toast(error.message, true);
+      if (data.session) return await setUser(data.session.user);
+      toast('Compte créé. Confirme ton e-mail puis connecte-toi.');
+      S.authMode = 'login'; render();
+    } else {
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) return toast('E-mail ou mot de passe incorrect.', true);
+      await setUser(data.user);
+    }
+  } finally { btn.disabled = false; }
+}
+async function saveClient(f) {
+  const id = f.dataset.id;
+  const row = { nom: f.nom.value.trim(), telephone: normTel(f.telephone.value), code: f.code.value.trim() };
+  if (!row.nom) return toast('Le nom est obligatoire.', true);
+  if (!/^\+?\d{8,15}$/.test(row.telephone)) return toast('Numéro de téléphone invalide.', true);
+  if (row.code.length < 4) return toast('Le code doit avoir 4 caractères minimum.', true);
+  const req = id ? sb.from('sahel_clients').update(row).eq('id', id).select().single()
+                 : sb.from('sahel_clients').insert(row).select().single();
+  const { data, error } = await req;
+  if (error) return toast(error.code === '23505' ? 'Ce numéro existe déjà.' : error.message, true);
+  if (id) S.clients = S.clients.map(c => c.id === id ? data : c); else S.clients.unshift(data);
+  closeModal(); render(); toast(id ? 'Client modifié.' : 'Client créé.');
+}
+async function saveLiv(f) {
+  const id = f.dataset.id;
+  const row = {
+    client_id: f.client_id.value, description: f.description.value.trim(),
+    depart: f.depart.value.trim(), destination: f.destination.value.trim(),
+    date_prevue: f.date_prevue.value || null, prix: f.prix.value === '' ? null : Number(f.prix.value)
+  };
+  if (!row.client_id || !row.description || !row.depart || !row.destination) return toast('Remplis tous les champs obligatoires.', true);
+  const req = id ? sb.from('sahel_livraisons').update(row).eq('id', id).select().single()
+                 : sb.from('sahel_livraisons').insert(row).select().single();
+  const { data, error } = await req;
+  if (error) return toast(error.message, true);
+  if (id) S.livraisons = S.livraisons.map(l => l.id === id ? data : l); else S.livraisons.unshift(data);
+  closeModal(); render(); toast(id ? 'Livraison modifiée.' : 'Livraison créée.');
+}
+async function changeStatut(id, statut) {
+  const { data, error } = await sb.from('sahel_livraisons').update({ statut }).eq('id', id).select().single();
+  if (error) { toast(error.message, true); render(); return; }
+  S.livraisons = S.livraisons.map(l => l.id === id ? data : l);
+  render(); toast('Statut : ' + LABEL[statut]);
+}
+async function patchClient(id, patch, msg) {
+  const { data, error } = await sb.from('sahel_clients').update(patch).eq('id', id).select().single();
+  if (error) return toast(error.message, true);
+  S.clients = S.clients.map(c => c.id === id ? data : c); render(); toast(msg);
+}
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); toast('Copié.'); } catch (e) { toast('Copie impossible, note-le à la main.', true); }
+}
+function msgClient(c) {
+  return `Bonjour ${c.nom}, vous pouvez suivre vos livraisons Sahel AKD${CLIENT_URL ? ' sur ' + CLIENT_URL : ''}.\nNuméro : ${c.telephone}\nCode : ${c.code}`;
+}
+
+document.addEventListener('click', async e => {
+  if (e.target.classList && e.target.classList.contains('backdrop')) { closeModal(); return; }
+  const t = e.target.closest('[data-a]');
+  if (!t) return;
+  const a = t.dataset.a, id = t.dataset.id;
+  const c = id ? clientById(id) : null;
+  const l = id ? S.livraisons.find(x => x.id === id) : null;
+  if (a === 'authmode') { S.authMode = S.authMode === 'login' ? 'signup' : 'login'; render(); }
+  else if (a === 'logout') { await sb.auth.signOut(); S.clients = []; S.livraisons = []; await setUser(null); }
+  else if (a === 'recheck') { await setUser(S.user); }
+  else if (a === 'nav') { S.view = t.dataset.v; S.q = ''; S.filtre = 'tous'; render(); window.scrollTo(0, 0); }
+  else if (a === 'filtre') { S.filtre = t.dataset.v; render(); }
+  else if (a === 'close') closeModal();
+  else if (a === 'add-client') clientForm(null);
+  else if (a === 'add-liv') livForm(null);
+  else if (a === 'edit-client' && c) clientForm(c);
+  else if (a === 'edit-liv' && l) livForm(l);
+  else if (a === 'hist') showHist(id);
+  else if (a === 'copy' && c) copyText(msgClient(c));
+  else if (a === 'wa' && c) window.open('https://wa.me/' + c.telephone.replace(/\D/g, '') + '?text=' + encodeURIComponent(msgClient(c)), '_blank');
+  else if (a === 'regen' && c) { if (confirm('Générer un nouveau code pour ' + c.nom + ' ? L’ancien ne marchera plus.')) patchClient(id, { code: genCode(), tentatives: 0, bloque_jusqu_a: null }, 'Nouveau code généré.'); }
+  else if (a === 'unlock' && c) patchClient(id, { tentatives: 0, bloque_jusqu_a: null }, 'Client débloqué.');
+  else if (a === 'del-client' && c) {
+    if (!confirm('Supprimer ' + c.nom + ' et toutes ses livraisons ?')) return;
+    const { error } = await sb.from('sahel_clients').delete().eq('id', id);
+    if (error) return toast(error.message, true);
+    S.clients = S.clients.filter(x => x.id !== id); S.livraisons = S.livraisons.filter(x => x.client_id !== id);
+    render(); toast('Client supprimé.');
+  }
+  else if (a === 'del-liv' && l) {
+    if (!confirm('Supprimer la livraison #' + l.reference + ' ?')) return;
+    const { error } = await sb.from('sahel_livraisons').delete().eq('id', id);
+    if (error) return toast(error.message, true);
+    S.livraisons = S.livraisons.filter(x => x.id !== id); render(); toast('Livraison supprimée.');
+  }
+});
+document.addEventListener('submit', e => {
+  e.preventDefault();
+  const f = e.target, k = f.dataset.form;
+  if (k === 'auth') doAuth(f); else if (k === 'client') saveClient(f); else if (k === 'liv') saveLiv(f);
+});
+document.addEventListener('change', e => {
+  const id = e.target.dataset && e.target.dataset.statut;
+  if (id) changeStatut(id, e.target.value);
+});
+document.addEventListener('input', e => {
+  if (e.target.id !== 'q') return;
+  S.q = e.target.value;
+  $('#liste').innerHTML = S.view === 'clients' ? listClients() : listLiv();
+});
+
+(async function init() {
+  const { data } = await sb.auth.getSession();
+  await setUser(data.session ? data.session.user : null);
+  sb.auth.onAuthStateChange((ev) => { if (ev === 'SIGNED_OUT' && S.user) setTimeout(() => setUser(null), 0); });
+})();
+</script>
+</body>
+</html>
