@@ -175,7 +175,7 @@ function shell(inner) {
   return `<header><div class="wrap"><div class="brand"><div class="logo">S</div><div><b>SAHEL AKD</b><small>OFFICE LOGISTIQUE</small></div></div>
     <button class="ghost" data-a="logout">Déconnexion</button></div></header>
     <main class="wrap">${inner}</main>
-    <button class="fab" data-a="${S.view === 'clients' ? 'add-client' : 'add-liv'}" aria-label="Ajouter">+</button>
+    <button class="fab" data-a="${S.view === 'clients' ? 'add-client' : S.view === 'livraisons' ? 'add-liv' : 'add-menu'}" aria-label="Ajouter">+</button>
     <nav><div class="wrap">${nav('accueil', i.home, 'Accueil')}${nav('clients', i.users, 'Clients')}${nav('livraisons', i.box, 'Livraisons')}</div></nav>`;
 }
 function accueil() {
@@ -273,7 +273,7 @@ function clientForm(c) {
     </form>`);
 }
 function livForm(l) {
-  if (!S.clients.length) { toast('Crée d’abord un client.', true); return; }
+  if (!S.clients.length) { clientForm(null); toast('Crée d’abord un client, tu pourras ensuite lui ajouter une livraison.'); return; }
   const opts = S.clients.map(c => `<option value="${c.id}" ${l && l.client_id === c.id ? 'selected' : ''}>${esc(c.nom)} (${esc(c.telephone)})</option>`).join('');
   openModal(`<h3>${l ? 'Modifier la livraison' : 'Nouvelle livraison'}</h3>
     <form data-form="liv" data-id="${l ? l.id : ''}">
@@ -376,6 +376,8 @@ document.addEventListener('click', async e => {
   else if (a === 'nav') { S.view = t.dataset.v; S.q = ''; S.filtre = 'tous'; render(); window.scrollTo(0, 0); }
   else if (a === 'filtre') { S.filtre = t.dataset.v; render(); }
   else if (a === 'close') closeModal();
+  else if (a === 'add-menu') openModal(`<h3>Ajouter</h3>
+    <div class="btns" style="flex-direction:column"><button class="btn" data-a="add-client">Nouveau client</button><button class="btn" data-a="add-liv">Nouvelle livraison</button><button class="ghost" data-a="close">Annuler</button></div>`);
   else if (a === 'add-client') clientForm(null);
   else if (a === 'add-liv') livForm(null);
   else if (a === 'edit-client' && c) clientForm(c);
