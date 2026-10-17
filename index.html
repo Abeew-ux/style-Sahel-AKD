@@ -312,7 +312,7 @@ async function doAuth(f) {
       S.authMode = 'login'; render();
     } else {
       const { data, error } = await sb.auth.signInWithPassword({ email, password });
-      if (error) return toast('E-mail ou mot de passe incorrect.', true);
+      if (error) return toast(error.code === 'email_not_confirmed' ? 'E-mail pas encore confirmé : ouvre le lien reçu par e-mail (vérifie les spams).' : 'E-mail ou mot de passe incorrect.', true);
       await setUser(data.user);
     }
   } finally { btn.disabled = false; }
