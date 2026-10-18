@@ -147,7 +147,8 @@ nav svg{width:22px;height:22px}
 .mode.livreur{color:var(--or2)}.mode.livreur:before{background:var(--or2)}
 .mode.retrait{color:#8fd0ff}.mode.retrait:before{background:#6fa8e8}
 .mode.none{color:var(--sable)}
-.thumb{display:block;margin:10px 0 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--s2);max-width:220px}
+.thumbs{display:flex;flex-wrap:wrap;gap:0 10px}
+.thumb{display:block;flex:0 1 150px;margin:10px 0 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--s2);text-decoration:none}
 .thumb img{display:block;width:100%;height:auto}
 .thumb span{display:block;padding:4px 10px;font-size:12px;color:var(--sable)}
 .preview{display:block;width:100%;max-height:260px;object-fit:contain;border-radius:12px;border:1px solid var(--line);margin-top:14px;background:var(--s2)}
@@ -336,6 +337,7 @@ function clientCard(c) {
       <button class="txt danger" data-a="del-client" data-id="${esc(c.id)}">Supprimer</button>
     </div></article>`;
 }
+const thumb = (p, label) => `<a class="thumb" href="${esc(PREUVES + p)}" target="_blank" rel="noopener"><img src="${esc(PREUVES + p)}" alt="${esc(label)}" loading="lazy"><span>${esc(label)}</span></a>`;
 const MODES = { livreur: 'Avec livreur', retrait: 'Retrait par le client' };
 const modeLabel = l => MODES[l.mode_livraison] || 'Mode non choisi';
 function livCard(l) {
@@ -347,11 +349,12 @@ function livCard(l) {
     <p class="desc">${esc(l.description)}</p>
     <div class="route"><span>${esc(l.depart)}</span><span class="dots"></span><span>${esc(l.destination)}</span></div>
     <div class="meta">${l.date_prevue ? `<span>Prévu le ${fmtDate(l.date_prevue)}</span>` : '<span>Date non précisée</span>'}${l.prix != null ? `<span>${fmtPrix(l.prix, l.devise)}</span>` : ''}<span class="mode ${l.mode_livraison || 'none'}">${modeLabel(l)}</span></div>
-    ${l.preuve_path ? `<a class="thumb" href="${esc(PREUVES + l.preuve_path)}" target="_blank" rel="noopener"><img src="${esc(PREUVES + l.preuve_path)}" alt="Preuve de livraison" loading="lazy"><span>Preuve de livraison</span></a>` : ''}
+    ${l.photo_path || l.preuve_path ? `<div class="thumbs">${l.photo_path ? thumb(l.photo_path, 'Photo du colis') : ''}${l.preuve_path ? thumb(l.preuve_path, 'Preuve de livraison') : ''}</div>` : ''}
     <div class="actions">
       <select data-statut="${esc(l.id)}" aria-label="Changer le statut">${opts}</select>
       <button class="txt" data-a="notify" data-id="${esc(l.id)}">Prévenir le client</button>
-      ${l.statut === 'livre' ? `<button class="txt" data-a="photo" data-id="${esc(l.id)}">${l.preuve_path ? 'Changer la photo' : 'Photo de preuve'}</button>` : ''}
+      <button class="txt" data-a="photo" data-kind="colis" data-id="${esc(l.id)}">${l.photo_path ? 'Changer la photo du colis' : 'Photo du colis'}</button>
+      ${l.statut === 'livre' ? `<button class="txt" data-a="photo" data-kind="preuve" data-id="${esc(l.id)}">${l.preuve_path ? 'Changer la preuve' : 'Photo de preuve'}</button>` : ''}
       <button class="txt" data-a="hist" data-id="${esc(l.id)}">Historique</button>
       <button class="txt" data-a="edit-liv" data-id="${esc(l.id)}">Modifier</button>
       <button class="txt danger" data-a="del-liv" data-id="${esc(l.id)}">Supprimer</button>
@@ -521,6 +524,7 @@ function msgStatut(l) {
     annule: 'a été annulé.'
   }[l.statut] || 'a changé de statut.';
   let m = `Bonjour ${c ? c.nom : ''}, votre colis #${l.reference} (${l.description}) ${phrase}`;
+  if (l.photo_path) m += `\nPhoto du colis : ${PREUVES + l.photo_path}`;
   if (l.statut === 'livre' && l.preuve_path) m += `\nPhoto de preuve : ${PREUVES + l.preuve_path}`;
   if (!l.mode_livraison && ['enregistre', 'pris_en_charge', 'en_transit'].includes(l.statut)) {
     m += '\nChoisissez sur le suivi : livraison avec livreur ou retrait par vous-même.';
@@ -540,9 +544,9 @@ function showLivre(id) {
     <p class="note" data-mk="${esc(id)}">${l.preuve_path ? 'Photo de preuve enregistrée.' : 'Tu peux ajouter une photo comme preuve de livraison.'}</p>
     ${l.preuve_path ? `<img class="preview" src="${esc(PREUVES + l.preuve_path)}" alt="Preuve de livraison">` : ''}
     <div class="btns stack">
-      <button class="btn" data-a="photo" data-id="${esc(id)}">${l.preuve_path ? 'Changer la photo' : 'Ajouter la photo de preuve'}</button>
+      <button class="btn" data-a="photo" data-kind="preuve" data-id="${esc(id)}">${l.preuve_path ? 'Changer la photo' : 'Ajouter la photo de preuve'}</button>
       <button class="line-btn" data-a="notify" data-id="${esc(id)}">Prévenir ${esc(c ? c.nom : 'le client')} sur WhatsApp</button>
-      ${l.preuve_path ? `<button class="line-btn" data-a="photo-del" data-id="${esc(id)}">Retirer la photo</button>` : ''}
+      ${l.preuve_path ? `<button class="line-btn" data-a="photo-del" data-kind="preuve" data-id="${esc(id)}">Retirer la photo</button>` : ''}
       <button class="line-btn" data-a="close">Fermer</button>
     </div>`);
 }
@@ -565,10 +569,12 @@ async function compresser(file, max = 1000) {
 async function supprimerPreuve(path) {
   if (path) { try { await sb.storage.from('sahel-preuves').remove([path]); } catch (e) { /* sans gravité */ } }
 }
-async function envoyerPreuve(id, file) {
+const COL = { colis: 'photo_path', preuve: 'preuve_path' };
+async function envoyerPhoto(id, kind, file) {
+  const col = COL[kind];
   const l = S.livraisons.find(x => x.id === id);
-  if (!l || !file) return;
-  const ancien = l.preuve_path;
+  if (!l || !file || !col) return;
+  const ancien = l[col];
   const enModal = !!document.querySelector('#modal [data-mk="' + id + '"]');
   toast('Envoi de la photo…');
   let blob;
@@ -576,19 +582,21 @@ async function envoyerPreuve(id, file) {
   const path = crypto.randomUUID() + '.jpg';
   const up = await sb.storage.from('sahel-preuves').upload(path, blob, { contentType: 'image/jpeg', upsert: false });
   if (up.error) return toast('Envoi impossible : ' + up.error.message, true);
-  const { data, error } = await sb.from('sahel_livraisons').update({ preuve_path: path }).eq('id', id).select().single();
+  const { data, error } = await sb.from('sahel_livraisons').update({ [col]: path }).eq('id', id).select().single();
   if (error) { await supprimerPreuve(path); return toast(error.message, true); }
   await supprimerPreuve(ancien);
   S.livraisons = S.livraisons.map(x => x.id === id ? data : x);
   render(); if (enModal) showLivre(id);
-  toast('Photo de preuve enregistrée.', false, { label: 'Prévenir le client', a: 'notify', id });
+  toast(kind === 'colis' ? 'Photo du colis enregistrée.' : 'Photo de preuve enregistrée.', false, { label: 'Prévenir le client', a: 'notify', id });
 }
-async function retirerPreuve(id) {
+async function retirerPhoto(id, kind) {
+  const col = COL[kind];
   const l = S.livraisons.find(x => x.id === id);
-  if (!l || !l.preuve_path || !confirm('Retirer la photo de preuve ?')) return;
-  const { data, error } = await sb.from('sahel_livraisons').update({ preuve_path: null }).eq('id', id).select().single();
+  if (!l || !col || !l[col] || !confirm('Retirer cette photo ?')) return;
+  const ancien = l[col];
+  const { data, error } = await sb.from('sahel_livraisons').update({ [col]: null }).eq('id', id).select().single();
   if (error) return toast(error.message, true);
-  await supprimerPreuve(l.preuve_path);
+  await supprimerPreuve(ancien);
   S.livraisons = S.livraisons.map(x => x.id === id ? data : x);
   const enModal = !!document.querySelector('#modal [data-mk="' + id + '"]');
   render(); if (enModal) showLivre(id);
@@ -644,15 +652,15 @@ document.addEventListener('click', async e => {
   else if (a === 'edit-liv' && l) livForm(l);
   else if (a === 'hist') showHist(id);
   else if (a === 'notify') { $('#toast').style.display = 'none'; notifyClient(id); }
-  else if (a === 'photo' && l) { photoFor = id; const inp = $('#photo-input'); inp.value = ''; inp.click(); }
-  else if (a === 'photo-del') retirerPreuve(id);
+  else if (a === 'photo' && l) { photoFor = { id, kind: t.dataset.kind === 'colis' ? 'colis' : 'preuve' }; const inp = $('#photo-input'); inp.value = ''; inp.click(); }
+  else if (a === 'photo-del') retirerPhoto(id, t.dataset.kind === 'colis' ? 'colis' : 'preuve');
   else if (a === 'copy' && c) copyText(msgClient(c));
   else if (a === 'wa' && c) window.open('https://wa.me/' + c.telephone.replace(/\D/g, '') + '?text=' + encodeURIComponent(msgClient(c)), '_blank');
   else if (a === 'regen' && c) { if (confirm('Générer un nouveau code pour ' + c.nom + ' ? L’ancien ne marchera plus.')) patchClient(id, { code: genCode(), tentatives: 0, bloque_jusqu_a: null }, 'Nouveau code généré.'); }
   else if (a === 'unlock' && c) patchClient(id, { tentatives: 0, bloque_jusqu_a: null }, 'Client débloqué.');
   else if (a === 'del-client' && c) {
     if (!confirm('Supprimer ' + c.nom + ' et toutes ses livraisons ?')) return;
-    const preuves = S.livraisons.filter(x => x.client_id === id && x.preuve_path).map(x => x.preuve_path);
+    const preuves = S.livraisons.filter(x => x.client_id === id).flatMap(x => [x.photo_path, x.preuve_path]).filter(Boolean);
     const { error } = await sb.from('sahel_clients').delete().eq('id', id);
     if (error) return toast(error.message, true);
     if (preuves.length) { try { await sb.storage.from('sahel-preuves').remove(preuves); } catch (e) { /* sans gravité */ } }
@@ -663,7 +671,7 @@ document.addEventListener('click', async e => {
     if (!confirm('Supprimer la livraison #' + l.reference + ' ?')) return;
     const { error } = await sb.from('sahel_livraisons').delete().eq('id', id);
     if (error) return toast(error.message, true);
-    await supprimerPreuve(l.preuve_path);
+    await supprimerPreuve(l.preuve_path); await supprimerPreuve(l.photo_path);
     S.livraisons = S.livraisons.filter(x => x.id !== id); render(); toast('Livraison supprimée.');
   }
   else if (a === 'del-admin') {
@@ -688,7 +696,7 @@ document.addEventListener('submit', e => {
   if (k === 'auth') doAuth(f); else if (k === 'client') saveClient(f); else if (k === 'liv') saveLiv(f); else if (k === 'invite') sendInvite(f);
 });
 document.addEventListener('change', e => {
-  if (e.target.id === 'photo-input') { const f = e.target.files && e.target.files[0]; if (f && photoFor) envoyerPreuve(photoFor, f); return; }
+  if (e.target.id === 'photo-input') { const f = e.target.files && e.target.files[0]; if (f && photoFor) envoyerPhoto(photoFor.id, photoFor.kind, f); return; }
   const id = e.target.dataset && e.target.dataset.statut;
   if (id) changeStatut(id, e.target.value);
 });
