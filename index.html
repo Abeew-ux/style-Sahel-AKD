@@ -329,7 +329,8 @@ function clientCard(c) {
     <div class="meta"><span>${esc(c.telephone)}</span><span>${nb} livraison${nb > 1 ? 's' : ''}</span></div>
     <span class="code">${esc(c.code)}</span>
     <div class="actions">
-      <button class="txt" data-a="copy" data-id="${esc(c.id)}">Copier le message</button>
+      <button class="txt" data-a="msg-client" data-id="${esc(c.id)}">Message</button>
+      <button class="txt" data-a="copy" data-id="${esc(c.id)}">Copier</button>
       <button class="txt" data-a="wa" data-id="${esc(c.id)}">WhatsApp</button>
       <button class="txt" data-a="edit-client" data-id="${esc(c.id)}">Modifier</button>
       <button class="txt" data-a="regen" data-id="${esc(c.id)}">Nouveau code</button>
@@ -421,6 +422,14 @@ function clientForm(c) {
       <div class="btns"><button type="button" class="line-btn" data-a="close">Annuler</button><button class="btn" type="submit">Enregistrer</button></div>
     </form>`);
 }
+function msgForm(c) {
+  openModal(`<h3>Message pour ${esc(c.nom)}</h3>
+    <p class="note">Le client le verra dans la cloche de son appli de suivi. Les changements de statut lui sont déjà envoyés automatiquement.</p>
+    <form data-form="msg" data-id="${esc(c.id)}">
+      <label>Message</label><textarea name="texte" required maxlength="500" placeholder="ex : Votre colis est arrivé à Agadez, passez le récupérer."></textarea>
+      <div class="btns"><button type="button" class="line-btn" data-a="close">Annuler</button><button class="btn" type="submit">Envoyer</button></div>
+    </form>`);
+}
 function livForm(l) {
   if (!S.clients.length) { clientForm(null); toast('Crée d’abord un client, tu pourras ensuite lui ajouter une livraison.'); return; }
   const opts = S.clients.map(c => `<option value="${esc(c.id)}" ${l && l.client_id === c.id ? 'selected' : ''}>${esc(c.nom)} (${esc(c.telephone)})</option>`).join('');
@@ -505,13 +514,23 @@ async function saveLiv(f) {
   if (id) S.livraisons = S.livraisons.map(l => l.id === id ? data : l); else S.livraisons.unshift(data);
   closeModal(); render(); toast(id ? 'Livraison modifiée.' : 'Livraison créée.');
 }
+async function saveMsg(f) {
+  const c = clientById(f.dataset.id);
+  const texte = f.texte.value.trim();
+  if (!c || !texte) return toast('Écris un message.', true);
+  const btn = f.querySelector('button[type=submit]'); btn.disabled = true;
+  const { error } = await sb.from('sahel_messages').insert({ client_id: c.id, type: 'texte', texte });
+  btn.disabled = false;
+  if (error) return toast(error.message, true);
+  closeModal(); toast('Message envoyé dans l’appli de ' + c.nom + '.');
+}
 async function changeStatut(id, statut) {
   const { data, error } = await sb.from('sahel_livraisons').update({ statut }).eq('id', id).select().single();
   if (error) { toast(error.message, true); render(); return; }
   S.livraisons = S.livraisons.map(l => l.id === id ? data : l);
   render();
   if (statut === 'livre') showLivre(id);
-  else toast('Statut : ' + LABEL[statut], false, { label: 'Prévenir le client', a: 'notify', id });
+  else toast('Statut : ' + LABEL[statut] + ' (client notifié dans l’appli)', false, { label: 'Prévenir sur WhatsApp', a: 'notify', id });
 }
 function msgStatut(l, jointe) {
   const c = clientById(l.client_id);
@@ -665,6 +684,7 @@ document.addEventListener('click', async e => {
   else if (a === 'add-client') clientForm(null);
   else if (a === 'add-liv') livForm(null);
   else if (a === 'edit-client' && c) clientForm(c);
+  else if (a === 'msg-client' && c) msgForm(c);
   else if (a === 'edit-liv' && l) livForm(l);
   else if (a === 'hist') showHist(id);
   else if (a === 'notify') { $('#toast').style.display = 'none'; await notifyClient(id); }
@@ -709,7 +729,7 @@ document.addEventListener('click', async e => {
 document.addEventListener('submit', e => {
   e.preventDefault();
   const f = e.target, k = f.dataset.form;
-  if (k === 'auth') doAuth(f); else if (k === 'client') saveClient(f); else if (k === 'liv') saveLiv(f); else if (k === 'invite') sendInvite(f);
+  if (k === 'auth') doAuth(f); else if (k === 'client') saveClient(f); else if (k === 'liv') saveLiv(f); else if (k === 'invite') sendInvite(f); else if (k === 'msg') saveMsg(f);
 });
 document.addEventListener('change', e => {
   if (e.target.id === 'photo-input') { const f = e.target.files && e.target.files[0]; if (f && photoFor) envoyerPhoto(photoFor.id, photoFor.kind, f); return; }
